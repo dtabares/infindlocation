@@ -24,7 +24,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location currentLocation;
     private LatLng currentLatLng;
     private static final String TAG = "MapsActivity";
-    private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+
 
 
     @Override
@@ -35,16 +35,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            Log.v(TAG, "tiene permisos");
-        } else {
-            Log.v(TAG, "no tiene permisos");
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
 
     }
 
@@ -62,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Log.v(TAG, "afuera");
 
         // Add a marker in Sydney and move the camera
 /*        LatLng sydney = new LatLng(-34, 151);
