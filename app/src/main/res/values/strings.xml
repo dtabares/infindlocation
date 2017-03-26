@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Inf Ind Location</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="wellcome_msg">UNTREF Verificador de Posicionamiento en un Area</string>
+    <string name="email_tooltip">Escriba su direccion de mail</string>
+    <string name="save_text">Guardar</string>
+    <string name="go_to_map_action">Ir a Mapa</string>
+</resources>
