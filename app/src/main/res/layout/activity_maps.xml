@@ -1,8 +1,36 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="ar.edu.untref.infindlocation.MapsActivity" />
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnAddPoints"
+        tools:context=".MapsActivity"
+    />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Agregar Puntos"
+        android:id="@+id/btnAddPoints"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="end"
+        style="?android:attr/buttonStyleSmall"
+        android:onClick="addPoints" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monitorear"
+        android:id="@+id/btnStartMonitoring"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="end"
+        android:layout_toRightOf="@+id/btnAddPoints"
+        style="?android:attr/buttonStyleSmall"
+        android:onClick="startMonitoring" />
+</RelativeLayout>
