@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -183,5 +186,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         return inside;
+    }
+
+    public void reproducirSonido(){
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+            mp.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
