@@ -33,4 +33,18 @@
         android:layout_toRightOf="@+id/btnAddPoints"
         style="?android:attr/buttonStyleSmall"
         android:onClick="startMonitoring" />
+
+    <Button
+        android:id="@+id/btnListo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Listo"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/btnStartMonitoring"
+        android:layout_toStartOf="@+id/btnStartMonitoring"
+        android:visibility="invisible"
+        android:onClick="addPointsOK"/>
+
 </RelativeLayout>

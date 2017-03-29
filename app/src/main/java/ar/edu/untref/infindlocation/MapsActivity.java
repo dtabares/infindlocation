@@ -10,18 +10,25 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -30,8 +37,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = "MapsActivity";
     private Polygon area;
     ArrayList<LatLng> polygonPoints;
+    List<LatLng> puntos = new LinkedList<LatLng>();
+    int contadorDePuntos=0;
 
-
+    //Interfaz
+    Button agregarPuntos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +51,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-    }
-
-    protected void addPoints(){
-
     }
 
     private List generarPuntosDePrueba(){
+
         polygonPoints = new ArrayList<LatLng>();
         polygonPoints.add(new LatLng(-34.598420, -58.492450));
         polygonPoints.add(new LatLng(-34.596133, -58.492847));
@@ -78,23 +84,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,20));
-            Log.v(TAG, "entre");
-            PolygonOptions polygonOptions = new PolygonOptions()
-                    .strokeColor(Color.RED)
-                    .fillColor(Color.argb(20, 255, 0, 0));
-
-            List puntos = this.generarPuntosDePrueba();
-            Iterator<LatLng> it = puntos.iterator();
-
-            while(it.hasNext()){
-                polygonOptions.add(it.next());
-            }
-            area = mMap.addPolygon(polygonOptions);
-
-
+            //Log.v(TAG, "entre");
         }
         catch (SecurityException e){
-            Log.v(TAG, "no entre");
+            //Log.v(TAG, "no entre");
             e.printStackTrace();
         }
     }
@@ -120,7 +113,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             latLngTuple[1] = pointB;
             edges.add(latLngTuple);
         }
-
         return edges;
     }
 
@@ -188,7 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return inside;
     }
 
-    public void reproducirSonido(){
+    public void playSound(){
         try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -196,5 +188,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void addPoints(View view){
+        mMap.setOnMapClickListener(this);
+        Button boton;
+        boton = (Button) findViewById(R.id.btnListo);
+        boton.setVisibility(View.VISIBLE);
+        boton = (Button) findViewById(R.id.btnAddPoints);
+        boton.setVisibility(View.INVISIBLE);
+    }
+
+    public void addPointsOK(View view){
+        Button boton;
+        boton = (Button) findViewById(R.id.btnListo);
+        boton.setVisibility(View.INVISIBLE);
+        boton = (Button) findViewById(R.id.btnAddPoints);
+        boton.setVisibility(View.VISIBLE);
+        //Dibujo el poligono
+        PolygonOptions polygonOptions = new PolygonOptions()
+                .strokeColor(Color.RED)
+                .fillColor(Color.argb(20, 255, 0, 0));
+
+        Iterator<LatLng> it = puntos.iterator();
+
+        while(it.hasNext()){
+            polygonOptions.add(it.next());
+        }
+        area = mMap.addPolygon(polygonOptions);
+        contadorDePuntos=0;
+        //Hay que sacar el MapOnClick listener no se como hacerlo
+    }
+
+    @Override
+    public void onMapClick (LatLng punto)
+    {
+        if(contadorDePuntos<5) {
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(punto)
+                    .radius(0.1); // In meters
+            Circle circle = mMap.addCircle(circleOptions);
+            //Log.d("Latitud", Double.toString(punto.latitude));
+            //Log.d("Longitud", Double.toString(punto.longitude));
+            puntos.add(punto);
+            contadorDePuntos++;
+        }
+        else{
+            Log.d("Estado: ","Todos los puntos fueron agregados");
+        }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+
+    }
+
+    public void startMonitoring(View view){
+        playSound();
     }
 }
