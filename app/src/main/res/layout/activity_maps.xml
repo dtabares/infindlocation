@@ -47,4 +47,15 @@
         android:visibility="invisible"
         android:onClick="addPointsOK"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TestMail"
+        android:id="@+id/btnTest"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="end"
+        android:layout_toRightOf="@+id/btnStartMonitoring"
+        style="?android:attr/buttonStyleSmall"
+        android:onClick="testMail" />
+
 </RelativeLayout>

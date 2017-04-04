@@ -13,6 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -23,10 +30,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
@@ -197,6 +210,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boton.setVisibility(View.VISIBLE);
         boton = (Button) findViewById(R.id.btnAddPoints);
         boton.setVisibility(View.INVISIBLE);
+    }
+/*    public void testMail(View view) {
+        Log.v(TAG, "ENTRE A TESTMAIL");
+    }*/
+    public void testMail(View view){
+        Log.v(TAG, "ENTRE A TESTMAIL");
+        String url = "https://infindlocation.herokuapp.com/notifications";
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response).getJSONObject("form");
+                            String site = jsonResponse.getString("site"),
+                                    network = jsonResponse.getString("network");
+                            System.out.println("Site: "+site+"\nNetwork: "+network);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            public byte[] getBody() throws AuthFailureError, UnsupportedEncodingException {
+                JSONObject jsonBody = new JSONObject();
+                JSONObject notificationJSON = new JSONObject();
+
+                try {
+                    jsonBody.put("email","dtabares@gmail.com");
+                    jsonBody.put("text","SAMPLE TEST From Android");
+                    jsonBody.put("key","JxnuLWwqAii5cT4k6iSHFmrvZ3s8zoNiAU4GmpkQz6mDA6d8bDK5aoXJHfpEQmCa");
+                    notificationJSON.put("notification",jsonBody);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.v(TAG, "JSON: " + notificationJSON.toString().getBytes("utf-8"));
+                return notificationJSON.toString().getBytes("utf-8");
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type","application/json; charset=utf-8");
+                return headers;
+            }
+        };
+        requestQueue.add(postRequest);
+        //requestQueue.start();
     }
 
     public void addPointsOK(View view){

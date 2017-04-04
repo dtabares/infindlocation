@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     Button goToMap;
     private static final String TAG = "MainActivity";
     private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+    private int MY_PERMISSIONS_REQUEST_INTERNET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.v(TAG, "tiene permisos de internet");
+
+        } else {
+            Log.v(TAG, "no tiene permisos de internet");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.INTERNET},
+                    MY_PERMISSIONS_REQUEST_INTERNET);
         }
         goToMap = (Button) findViewById(R.id.button4);
 
