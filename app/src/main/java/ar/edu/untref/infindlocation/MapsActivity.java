@@ -40,6 +40,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
@@ -52,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LatLng> polygonPoints;
     List<LatLng> puntos = new LinkedList<LatLng>();
     int contadorDePuntos=0;
+    ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(5);
+    ScheduledFuture<?> monitor;
 
     //Interfaz
     Button agregarPuntos;
@@ -109,17 +116,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ArrayList<LatLng[]> getPolygonEdges(){
         ArrayList<LatLng[]> edges = new ArrayList<>();
         LatLng[] latLngTuple;
-        int numberOfPoints = this.polygonPoints.size();
+        int numberOfPoints = this.puntos.size();
         int nextPoint;
         LatLng pointA, pointB;
         for (int i=0; i<numberOfPoints; i++){
-            pointA = this.polygonPoints.get(i);
+            pointA = this.puntos.get(i);
             nextPoint = i+1;
             if(nextPoint < numberOfPoints){
-                pointB = this.polygonPoints.get(nextPoint);
+                pointB = this.puntos.get(nextPoint);
             }
             else{
-                pointB = this.polygonPoints.get(0);
+                pointB = this.puntos.get(0);
             }
             latLngTuple = new LatLng[2];
             latLngTuple[0] = pointA;
@@ -211,10 +218,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boton = (Button) findViewById(R.id.btnAddPoints);
         boton.setVisibility(View.INVISIBLE);
     }
-/*    public void testMail(View view) {
-        Log.v(TAG, "ENTRE A TESTMAIL");
-    }*/
-    public void testMail(View view){
+
+    public void sendMail(){
         Bundle bundle = getIntent().getExtras();
         final String notificationEmail = bundle.getString("notificationEmail");
         Log.v(TAG, "ENTRE A TESTMAIL");
@@ -315,7 +320,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    Runnable monitorear = new Runnable() {
+        @Override
+        public void run() {
+            Log.v(TAG, "Entre a monitorear area");
+            currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+            boolean adentroDelArea = contains(currentLatLng);
+            if (!adentroDelArea){
+                playSound();
+                sendMail();
+            }
+            Log.v(TAG, "Estoy adentro del area? : " + adentroDelArea);
+        }
+    };
     public void startMonitoring(View view){
-        playSound();
+        Log.v(TAG, "Entre a start monitoring (area)");
+        monitor = scheduledThreadPoolExecutor.scheduleWithFixedDelay(monitorear,1,10, TimeUnit.SECONDS);
+        Button boton;
+        boton = (Button) findViewById(R.id.btnStopMonitoring);
+        boton.setVisibility(View.VISIBLE);
+        boton = (Button) findViewById(R.id.btnStartMonitoring);
+        boton.setVisibility(View.INVISIBLE);
+
+    }
+
+    public void stopMonitoring(View view){
+        Log.v(TAG, "Entre a stop monitoring (area)");
+        monitor.cancel(true);
+        Button boton;
+        boton = (Button) findViewById(R.id.btnStopMonitoring);
+        boton.setVisibility(View.INVISIBLE);
+        boton = (Button) findViewById(R.id.btnStartMonitoring);
+        boton.setVisibility(View.VISIBLE);
     }
 }

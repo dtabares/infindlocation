@@ -46,16 +46,27 @@
         android:layout_toStartOf="@+id/btnStartMonitoring"
         android:visibility="invisible"
         android:onClick="addPointsOK"/>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TestMail"
-        android:id="@+id/btnTest"
+        android:text="Detener Monitoreo"
+        android:id="@+id/btnStopMonitoring"
         android:layout_alignParentBottom="true"
         android:layout_gravity="end"
-        android:layout_toRightOf="@+id/btnStartMonitoring"
+        android:visibility="invisible"
+        android:layout_toRightOf="@+id/btnAddPoints"
         style="?android:attr/buttonStyleSmall"
-        android:onClick="testMail" />
+        android:onClick="stopMonitoring" />
+
+    <!--    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TestMail"
+            android:id="@+id/btnTest"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="end"
+            android:layout_toRightOf="@+id/btnStartMonitoring"
+            style="?android:attr/buttonStyleSmall"
+            android:onClick="sendMail" />-->
 
 </RelativeLayout>
