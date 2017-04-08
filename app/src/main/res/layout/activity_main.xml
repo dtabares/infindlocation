@@ -20,6 +20,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="159dp"
+            android:onClick="saveEmail"
             android:text="@string/save_text" />
 
         <TextView

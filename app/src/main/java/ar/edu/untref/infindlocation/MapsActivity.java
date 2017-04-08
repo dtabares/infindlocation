@@ -215,7 +215,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.v(TAG, "ENTRE A TESTMAIL");
     }*/
     public void testMail(View view){
+        Bundle bundle = getIntent().getExtras();
+        final String notificationEmail = bundle.getString("notificationEmail");
         Log.v(TAG, "ENTRE A TESTMAIL");
+        Log.v(TAG, "Notification Email: " + notificationEmail);
         String url = "https://infindlocation.herokuapp.com/notifications";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -245,8 +248,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 JSONObject notificationJSON = new JSONObject();
 
                 try {
-                    jsonBody.put("email","dtabares@gmail.com");
-                    jsonBody.put("text","SAMPLE TEST From Android");
+                    jsonBody.put("email",notificationEmail);
+                    jsonBody.put("text","Estas afuera del area seleccionada");
                     jsonBody.put("key","JxnuLWwqAii5cT4k6iSHFmrvZ3s8zoNiAU4GmpkQz6mDA6d8bDK5aoXJHfpEQmCa");
                     notificationJSON.put("notification",jsonBody);
                 } catch (JSONException e) {
