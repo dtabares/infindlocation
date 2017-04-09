@@ -324,13 +324,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void run() {
             Log.v(TAG, "Entre a monitorear area");
-            currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-            boolean adentroDelArea = contains(currentLatLng);
-            if (!adentroDelArea){
-                playSound();
-                sendMail();
+            try{
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+                boolean adentroDelArea = contains(currentLatLng);
+                if (!adentroDelArea){
+                    playSound();
+                    sendMail();
+                }
+                Log.v(TAG, "Current LAT : " + currentLocation.getLatitude() + " Current LONG: " + currentLocation.getLongitude());
+                Log.v(TAG, "Estoy adentro del area? : " + adentroDelArea);
             }
-            Log.v(TAG, "Estoy adentro del area? : " + adentroDelArea);
+            catch (SecurityException e){
+                e.printStackTrace();
+            }
+
         }
     };
     public void startMonitoring(View view){
