@@ -211,6 +211,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void addPoints(View view){
+        mMap.clear();
+        puntos.clear();
         mMap.setOnMapClickListener(this);
         Button boton;
         boton = (Button) findViewById(R.id.btnListo);
