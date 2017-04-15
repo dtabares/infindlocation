@@ -34,7 +34,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -53,6 +56,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location currentLocation;
     private LatLng currentLatLng;
     private static final String TAG = "MapsActivity";
+    private String exitAreaDateTime;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private Polygon area;
     ArrayList<LatLng> polygonPoints;
     List<LatLng> puntos = new LinkedList<LatLng>();
@@ -256,8 +261,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 try {
                     jsonBody.put("email",notificationEmail);
-                    jsonBody.put("text","Estas afuera del area seleccionada");
+                    jsonBody.put("subject","Estas afuera del area seleccionada");
                     jsonBody.put("key","JxnuLWwqAii5cT4k6iSHFmrvZ3s8zoNiAU4GmpkQz6mDA6d8bDK5aoXJHfpEQmCa");
+                    jsonBody.put("time",exitAreaDateTime);
+                    jsonBody.put("latitude",currentLocation.getLatitude());
+                    jsonBody.put("longitude",currentLocation.getLongitude());
+                    jsonBody.put("distance","");
                     notificationJSON.put("notification",jsonBody);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -327,8 +336,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void run() {
             Log.v(TAG, "Entre a monitorear area");
             try{
+                Date date = new Date();
                 currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+                exitAreaDateTime = dateFormat.format(date).toString();
                 boolean adentroDelArea = contains(currentLatLng);
                 if (!adentroDelArea){
                     playSound();
