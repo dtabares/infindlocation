@@ -432,8 +432,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng b = segment[1];
 
         Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(p,a)));
-        Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(p,b)));
-        Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(a,b)));
+        Log.d("hjk Distancia PB", Double.toString(computeDistanceBetween(p,b)));
+        Log.d("hjk Distancia AB", Double.toString(computeDistanceBetween(a,b)));
 
         //Angle between PA - AB
         double alpha=
@@ -458,15 +458,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("hjk alpha", Double.toString(alpha));
         Log.d("hjk beta", Double.toString(beta));
         //if both angles are lower than 90 then point is somewhere between segment
-        if (alpha<90 && beta<90) {
+        if (alpha<(Math.PI/2) && beta<(Math.PI/2)) {
             distancia = (computeDistanceBetween(p,a)/Math.sin(alpha));
         }
         //If Beta is greater or equal than 90 it takes the distance PB
-        else if(alpha<90 && beta>=90){
+        else if(alpha<(Math.PI/2) && beta>=(Math.PI/2)){
             distancia = (computeDistanceBetween(p,b));
         }
         //Takes the disctance PA
-        else if(alpha>=90 && beta<90){
+        else if(alpha>=(Math.PI/2) && beta<(Math.PI/2)){
             distancia = (computeDistanceBetween(p,a));
         }
         else{
