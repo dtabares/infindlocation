@@ -7,8 +7,8 @@ import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +29,8 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,13 +45,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
+import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -266,7 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     jsonBody.put("time",exitAreaDateTime);
                     jsonBody.put("latitude",currentLocation.getLatitude());
                     jsonBody.put("longitude",currentLocation.getLongitude());
-                    jsonBody.put("distance","");
+                    jsonBody.put("distance", getOffsetDistanceToPolygon() + " meters");
                     notificationJSON.put("notification",jsonBody);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -305,7 +308,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         area = mMap.addPolygon(polygonOptions);
         contadorDePuntos=0;
-        //Hay que sacar el MapOnClick listener no se como hacerlo
     }
 
     @Override
@@ -319,16 +321,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //Log.d("Latitud", Double.toString(punto.latitude));
             //Log.d("Longitud", Double.toString(punto.longitude));
             puntos.add(punto);
+            Log.d("Puntos de prueba", Double.toString(punto.latitude) + " | " + Double.toString(punto.longitude));
             contadorDePuntos++;
         }
         else{
             Log.d("Estado: ","Todos los puntos fueron agregados");
         }
-    }
-
-    @Override
-    public void onMapLongClick(LatLng latLng) {
-
     }
 
     Runnable monitorear = new Runnable() {
@@ -362,7 +360,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boton.setVisibility(View.VISIBLE);
         boton = (Button) findViewById(R.id.btnStartMonitoring);
         boton.setVisibility(View.INVISIBLE);
-
     }
 
     public void stopMonitoring(View view){
@@ -373,5 +370,109 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boton.setVisibility(View.INVISIBLE);
         boton = (Button) findViewById(R.id.btnStartMonitoring);
         boton.setVisibility(View.VISIBLE);
+    }
+
+    //Returns the closest polygon point from current location
+    public LatLng getClosestPoint(){
+        LatLng closestPoint = puntos.get(0);
+        LatLng currentPosition = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+        double distancia= computeDistanceBetween(currentPosition,puntos.get(0));
+        int index = 0;
+        for (int i = 0; i<puntos.size();i++){
+            if(computeDistanceBetween(currentPosition,puntos.get(i))<distancia){
+                distancia = computeDistanceBetween(currentPosition,puntos.get(i));
+                closestPoint = puntos.get(i);
+                index = i;
+            }
+        }
+        return closestPoint;
+    }
+
+    //Returns the distance to closest point
+    public Double getDistanceToClosestPoint(){
+        LatLng closestPoint = getClosestPoint();
+        double distance= computeDistanceBetween(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),closestPoint);
+        return distance;
+    }
+
+    public int getOffsetDistanceToPolygon(){
+        double distance=999999999;
+        String strSegment="";
+        for (int i=0; i<puntos.size(); i++){
+            if (i==puntos.size()-1){
+                LatLng[] segment = new LatLng[]{puntos.get(puntos.size()-1),puntos.get(0)};
+                LatLng p = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+                strSegment = "Segmento: " + Integer.toString(puntos.size()-1) + " - " + Integer.toString(0);
+                if(getDistanceFromPointToSegment(p,segment,strSegment)<distance){
+                    distance = getDistanceFromPointToSegment(p,segment,strSegment);
+                }
+            }
+            else{
+                LatLng[] segment = new LatLng[]{puntos.get(i),puntos.get(i+1)};
+                LatLng p = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+                strSegment = "Segmento: " + Integer.toString(i) + " - " + Integer.toString(i+1);
+                if(getDistanceFromPointToSegment(p,segment,strSegment)<distance){
+                    distance = getDistanceFromPointToSegment(p,segment,strSegment);
+
+                }
+            }
+        }
+        Log.d("hjk Ubicacion Actual", currentLocation.getLatitude() + " | " + currentLocation.getLongitude());
+        Log.d("hjk Segmento + cercano", strSegment);
+        Log.d("hjk Distancia Poligono", Integer.toString((int) distance));
+        return (int) distance;
+    }
+
+    public Double getDistanceFromPointToSegment(LatLng p, LatLng[] segment, String segmento){
+        Log.d("hjk Calc distancia", segmento);
+
+        double distancia = -1;
+        //AB is the segment
+        LatLng a = segment[0];
+        LatLng b = segment[1];
+
+        Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(p,a)));
+        Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(p,b)));
+        Log.d("hjk Distancia PA", Double.toString(computeDistanceBetween(a,b)));
+
+        //Angle between PA - AB
+        double alpha=
+                Math.acos(
+                (Math.pow(computeDistanceBetween(p,a),2)+
+                   Math.pow(computeDistanceBetween(a,b),2)-
+                        Math.pow(computeDistanceBetween(p,b),2))
+                            /
+                            ((2)*computeDistanceBetween(p,a)*computeDistanceBetween(a,b))
+
+        );
+        //Angle between PB - AB
+        double beta=
+                Math.acos(
+                (Math.pow(computeDistanceBetween(p,b),2)+
+                        Math.pow(computeDistanceBetween(a,b),2)-
+                            Math.pow(computeDistanceBetween(p,a),2))
+                                /
+                                ((2)*computeDistanceBetween(p,b)*computeDistanceBetween(a,b))
+
+        );
+        Log.d("hjk alpha", Double.toString(alpha));
+        Log.d("hjk beta", Double.toString(beta));
+        //if both angles are lower than 90 then point is somewhere between segment
+        if (alpha<90 && beta<90) {
+            distancia = (computeDistanceBetween(p,a)/Math.sin(alpha));
+        }
+        //If Beta is greater or equal than 90 it takes the distance PB
+        else if(alpha<90 && beta>=90){
+            distancia = (computeDistanceBetween(p,b));
+        }
+        //Takes the disctance PA
+        else if(alpha>=90 && beta<90){
+            distancia = (computeDistanceBetween(p,a));
+        }
+        else{
+            distancia = -1.0;
+        }
+        Log.d("hjk Distancia", Double.toString(distancia));
+        return distancia;
     }
 }
