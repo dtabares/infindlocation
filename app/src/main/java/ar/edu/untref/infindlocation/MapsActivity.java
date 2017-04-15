@@ -418,7 +418,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         Log.d("hjk Ubicacion Actual", currentLocation.getLatitude() + " | " + currentLocation.getLongitude());
-        Log.d("hjk Segmento + cercano", strSegment);
         Log.d("hjk Distancia Poligono", Integer.toString((int) distance));
         return (int) distance;
     }
