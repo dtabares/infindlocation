@@ -59,9 +59,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location currentLocation;
     private LatLng currentLatLng;
     private static final String TAG = "MapsActivity";
+    private Estado estadoActual;
+    private Estado estadoAnterior;
     private String exitAreaDateTime;
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private Polygon area;
+
     ArrayList<LatLng> polygonPoints;
     List<LatLng> puntos = new LinkedList<LatLng>();
     int contadorDePuntos=0;
@@ -269,7 +272,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     jsonBody.put("time",exitAreaDateTime);
                     jsonBody.put("latitude",currentLocation.getLatitude());
                     jsonBody.put("longitude",currentLocation.getLongitude());
-                    jsonBody.put("distance", getOffsetDistanceToPolygon() + " meters");
+                    jsonBody.put("distance", getOffsetDistanceToPolygon());
                     notificationJSON.put("notification",jsonBody);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -287,7 +290,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
         requestQueue.add(postRequest);
-        //requestQueue.start();
     }
 
     public void addPointsOK(View view){
@@ -339,12 +341,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
                 exitAreaDateTime = dateFormat.format(date).toString();
                 boolean adentroDelArea = contains(currentLatLng);
-                if (!adentroDelArea){
+                if (adentroDelArea){
+                    estadoActual = Estado.DENTRO_DEL_AREA;
+                }
+                else{
+                    estadoActual = Estado.FUERA_DEL_AREA;
+                }
+                if (estadoActual.equals(Estado.FUERA_DEL_AREA) && (estadoAnterior == null ||estadoAnterior.equals(Estado.DENTRO_DEL_AREA))){
                     playSound();
                     sendMail();
                 }
                 Log.v(TAG, "Current LAT : " + currentLocation.getLatitude() + " Current LONG: " + currentLocation.getLongitude());
                 Log.v(TAG, "Estoy adentro del area? : " + adentroDelArea);
+                estadoAnterior = estadoActual;
             }
             catch (SecurityException e){
                 e.printStackTrace();
@@ -353,6 +362,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
     public void startMonitoring(View view){
+        this.estadoAnterior = null;
         Log.v(TAG, "Entre a start monitoring (area)");
         monitor = scheduledThreadPoolExecutor.scheduleWithFixedDelay(monitorear,1,10, TimeUnit.SECONDS);
         Button boton;
